@@ -3,8 +3,6 @@
 
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
-#include "FreeRTOS.h"
-#include "semphr.h"
 
 class BME280 {
 public:
@@ -16,7 +14,6 @@ private:
     i2c_inst_t* _i2c;
     uint8_t _address;
     uint _sda_pin, _scl_pin;
-    SemaphoreHandle_t _mutex;
 
     // Compensation parameters
     uint16_t dig_T1;
