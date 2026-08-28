@@ -1,38 +1,58 @@
-#ifndef BME280_H
-#define BME280_H
+#pragma once
 
 #include "hardware/i2c.h"
-#include "pico/stdlib.h"
+#include <cstddef>
+#include <cstdint>
 
 class BME280 {
 public:
-    BME280(i2c_inst_t* i2c, uint8_t address, uint sda_pin, uint scl_pin);
+    BME280(i2c_inst_t* i2c, uint8_t address);
+
     bool init();
-    bool readSensor(float& temperature, float& pressure, float& humidity);
+
+    bool readSensor(
+        float& temperature,
+        float& pressure,
+        float& humidity
+    );
 
 private:
     i2c_inst_t* _i2c;
     uint8_t _address;
-    uint _sda_pin, _scl_pin;
 
-    // Compensation parameters
-    uint16_t dig_T1;
-    int16_t dig_T2, dig_T3;
-    uint16_t dig_P1;
-    int16_t dig_P2, dig_P3, dig_P4, dig_P5, dig_P6, dig_P7, dig_P8, dig_P9;
-    uint8_t dig_H1, dig_H3;
-    int8_t dig_H6;
-    int16_t dig_H2, dig_H4, dig_H5;
+    // Temperature calibration
+    uint16_t dig_T1 = 0;
+    int16_t  dig_T2 = 0;
+    int16_t  dig_T3 = 0;
 
-    int32_t t_fine;
+    // Pressure calibration
+    uint16_t dig_P1 = 0;
+    int16_t  dig_P2 = 0;
+    int16_t  dig_P3 = 0;
+    int16_t  dig_P4 = 0;
+    int16_t  dig_P5 = 0;
+    int16_t  dig_P6 = 0;
+    int16_t  dig_P7 = 0;
+    int16_t  dig_P8 = 0;
+    int16_t  dig_P9 = 0;
+
+    // Humidity calibration
+    uint8_t dig_H1 = 0;
+    int16_t dig_H2 = 0;
+    uint8_t dig_H3 = 0;
+    int16_t dig_H4 = 0;
+    int16_t dig_H5 = 0;
+    int8_t  dig_H6 = 0;
+
+    int32_t t_fine = 0;
 
     bool readCalibrationData();
-    uint8_t readRegister(uint8_t reg);
-    void readRegisters(uint8_t reg, uint8_t* buf, size_t len);
-    void writeRegister(uint8_t reg, uint8_t value);
+
+    bool readRegister(uint8_t reg, uint8_t& value);
+    bool readRegisters(uint8_t reg, uint8_t* buffer, size_t length);
+    bool writeRegister(uint8_t reg, uint8_t value);
+
     int32_t compensateTemperature(int32_t adc_T);
     uint32_t compensatePressure(int32_t adc_P);
     uint32_t compensateHumidity(int32_t adc_H);
 };
-
-#endif // BME280_SENSOR_H
