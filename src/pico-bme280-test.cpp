@@ -61,10 +61,7 @@ int main( void )
 
     i2c_mutex = xSemaphoreCreateMutex();
 
-    BME280 bme280(bme280_config::I2C_INSTANCE,
-        bme280_config::ADDRESS,
-        bme280_config::SDA,
-        bme280_config::SCL);
+    BME280 bme280(bme280_config::I2C_INSTANCE, bme280_config::ADDRESS);
     xTaskCreate(bme280_task, "BME280Task", 512, (void*)&bme280, BME280_TASK_PRIORITY, nullptr);
 
     vTaskStartScheduler();
