@@ -25,14 +25,17 @@ include(
 
 add_executable(${PROJECT}
   src/pico-bme280-test.cpp
+  src/BME280/BME280.cpp
 )
 
 target_include_directories(${PROJECT} PUBLIC
   include/
+  src/BME280
 )
 
 target_link_libraries(${PROJECT}
     pico_stdlib
+    hardware_i2c
     FreeRTOS-Kernel-Heap4
 )
 
