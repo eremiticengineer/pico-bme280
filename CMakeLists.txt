@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(LIBRARY pico-bme280)
-set(PROJECT pico-bme280-test)
+set(LIBRARY pico_bme280)
+set(PROJECT pico_bme280_test)
 
 set(PICO_BOARD pico2 CACHE STRING "Board type")
 
