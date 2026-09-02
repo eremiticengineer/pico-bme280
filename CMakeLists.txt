@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(PROJECT picobme280test)
+set(LIBRARY pico-bme280)
+set(PROJECT pico-bme280-test)
 
 set(PICO_BOARD pico2 CACHE STRING "Board type")
 
@@ -15,29 +16,51 @@ pico_sdk_init()
 
 message(STATUS "PICO_PLATFORM=${PICO_PLATFORM}")
 
-set(FREERTOS_KERNEL_PATH
-    ${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel
+# ---------------------------------------------------------
+# Library
+# ---------------------------------------------------------
+add_library(${LIBRARY}
+    src/BME280.cpp
 )
 
-include(
-    ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake
+target_include_directories(${LIBRARY} PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/src
 )
 
-add_executable(${PROJECT}
-  src/pico-bme280-test.cpp
-  src/BME280/BME280.cpp
-)
-
-target_include_directories(${PROJECT} PUBLIC
-  include/
-  src/BME280
-)
-
-target_link_libraries(${PROJECT}
+target_link_libraries(${LIBRARY}
     pico_stdlib
     hardware_i2c
-    FreeRTOS-Kernel-Heap4
 )
+
+# ---------------------------------------------------------
+# Standalone test
+# ---------------------------------------------------------
+if(PROJECT_IS_TOP_LEVEL)
+    set(FREERTOS_KERNEL_PATH
+        ${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel
+    )
+
+    include(
+        ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake
+    )
+
+    add_executable(${PROJECT}
+        examples/main.cpp
+    )
+
+    # PRIVATE = only needed to build this executable
+    # it isn’t part of the public interface of the library
+    target_include_directories(${PROJECT} PRIVATE
+        include/
+    )
+
+    target_link_libraries(${PROJECT}
+        pico_stdlib
+        hardware_i2c
+        FreeRTOS-Kernel-Heap4
+        ${LIBRARY}
+    )
+endif()
 
 pico_enable_stdio_usb(${PROJECT} 1)
 pico_enable_stdio_uart(${PROJECT} 1)
