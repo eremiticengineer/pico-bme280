@@ -56,13 +56,12 @@ if(PROJECT_IS_TOP_LEVEL)
 
     target_link_libraries(${PROJECT}
         pico_stdlib
-        hardware_i2c
         FreeRTOS-Kernel-Heap4
         ${LIBRARY}
     )
+
+  pico_enable_stdio_usb(${PROJECT} 1)
+  pico_enable_stdio_uart(${PROJECT} 1)
+
+  pico_add_extra_outputs(${PROJECT})
 endif()
-
-pico_enable_stdio_usb(${PROJECT} 1)
-pico_enable_stdio_uart(${PROJECT} 1)
-
-pico_add_extra_outputs(${PROJECT})
