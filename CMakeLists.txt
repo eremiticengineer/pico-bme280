@@ -27,7 +27,7 @@ target_include_directories(${LIBRARY} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
 
-target_link_libraries(${LIBRARY}
+target_link_libraries(${LIBRARY} PUBLIC
     pico_stdlib
     hardware_i2c
 )
