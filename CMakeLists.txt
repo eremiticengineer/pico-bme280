@@ -1,20 +1,47 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(LIBRARY pico_bme280)
-set(PROJECT pico_bme280_test)
 
-set(PICO_BOARD pico2 CACHE STRING "Board type")
+# ---------------------------------------------------------
+# Are we being built directly or as a submodule?
+# ---------------------------------------------------------
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(PICO_LORA_STANDALONE TRUE)
+else()
+    set(PICO_LORA_STANDALONE FALSE)
+endif()
 
-include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+# ---------------------------------------------------------
+# Standalone project setup
+# ---------------------------------------------------------
+if(PICO_LORA_STANDALONE)
+    set(PROJECT pico_bme280_test)
 
-project(${PROJECT} C CXX ASM)
+    if(DEVICE STREQUAL "seeed_xiao_rp2040")
+        set(PICO_BOARD seeed_xiao_rp2040 CACHE STRING "Board type" FORCE)
+    elseif(DEVICE STREQUAL "pico")
+        set(PICO_BOARD pico CACHE STRING "Board type" FORCE)
+    elseif(DEVICE STREQUAL "pico2")
+        set(PICO_BOARD pico2 CACHE STRING "Board type" FORCE)
+    else()
+        message(FATAL_ERROR
+            "Unknown DEVICE='${DEVICE}'. Use pico, pico2 or seeed_xiao_rp2040."
+        )
+    endif()
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 23)
+    include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
-pico_sdk_init()
+    project(${LIBRARY} C CXX ASM)
 
-message(STATUS "PICO_PLATFORM=${PICO_PLATFORM}")
+    set(CMAKE_C_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 23)
+
+    pico_sdk_init()
+
+    message(STATUS "DEVICE=${DEVICE}")
+    message(STATUS "PICO_BOARD=${PICO_BOARD}")
+    message(STATUS "PICO_PLATFORM=${PICO_PLATFORM}")
+endif()
 
 # ---------------------------------------------------------
 # Library
@@ -33,9 +60,9 @@ target_link_libraries(${LIBRARY} PUBLIC
 )
 
 # ---------------------------------------------------------
-# Standalone test
+# Standalone example
 # ---------------------------------------------------------
-if(PROJECT_IS_TOP_LEVEL)
+if(PICO_LORA_STANDALONE)
     set(FREERTOS_KERNEL_PATH
         ${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel
     )
