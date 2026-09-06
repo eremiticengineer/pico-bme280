@@ -21,7 +21,6 @@ bool BME280::init() {
      * from internal NVM into the readable calibration registers
      * after startup/reset
      */
-    after startup/reset
     uint8_t status = 0;
     do {
         if (!readRegister(0xF3, status)) {
