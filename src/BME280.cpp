@@ -16,6 +16,21 @@ bool BME280::init() {
         return false;
     }
 
+    /*
+     * Wait for the device to finish copying its calibration data
+     * from internal NVM into the readable calibration registers
+     * after startup/reset
+     */
+    after startup/reset
+    uint8_t status = 0;
+    do {
+        if (!readRegister(0xF3, status)) {
+            return false;
+        }
+
+        sleep_ms(1000);
+    } while (status & 0x01);  // im_update
+
     if (!readCalibrationData()) {
         return false;
     }
