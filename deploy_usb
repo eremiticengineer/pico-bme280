@@ -1,5 +1,5 @@
 # pico
-#cp build/picobme280test.uf2 /media/pi/RPI-RP2
+#cp build/pico_bme280_example.uf2 /media/pi/RPI-RP2
 
 # pico2
-cp build/picobme280test.uf2 /media/pi/RP2350
+cp build/pico_bme280_example.uf2 /media/pi/RP2350

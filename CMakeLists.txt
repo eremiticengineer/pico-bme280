@@ -6,16 +6,16 @@ set(LIBRARY pico_bme280)
 # Are we being built directly or as a submodule?
 # ---------------------------------------------------------
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    set(PICO_LORA_STANDALONE TRUE)
+    set(PICO_BME280_STANDALONE TRUE)
 else()
-    set(PICO_LORA_STANDALONE FALSE)
+    set(PICO_BME280_STANDALONE FALSE)
 endif()
 
 # ---------------------------------------------------------
 # Standalone project setup
 # ---------------------------------------------------------
-if(PICO_LORA_STANDALONE)
-    set(PROJECT pico_bme280_test)
+if(PICO_BME280_STANDALONE)
+    set(PROJECT pico_bme280_example)
 
     if(DEVICE STREQUAL "seeed_xiao_rp2040")
         set(PICO_BOARD seeed_xiao_rp2040 CACHE STRING "Board type" FORCE)
@@ -38,6 +38,17 @@ if(PICO_LORA_STANDALONE)
 
     pico_sdk_init()
 
+    # -----------------------------------------------------
+    # FreeRTOS
+    # -----------------------------------------------------
+    set(FREERTOS_KERNEL_PATH
+        ${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel
+    )
+
+    include(
+        ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake
+    )
+
     message(STATUS "DEVICE=${DEVICE}")
     message(STATUS "PICO_BOARD=${PICO_BOARD}")
     message(STATUS "PICO_PLATFORM=${PICO_PLATFORM}")
@@ -54,6 +65,14 @@ target_include_directories(${LIBRARY} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
 
+# When building the standalone example, its configuration
+# files are the application-wide FreeRTOS configuration.
+if(PICO_BME280_STANDALONE)
+    target_include_directories(${LIBRARY} PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/examples/include
+    )
+endif()
+
 target_link_libraries(${LIBRARY} PUBLIC
     pico_stdlib
     hardware_i2c
@@ -62,15 +81,7 @@ target_link_libraries(${LIBRARY} PUBLIC
 # ---------------------------------------------------------
 # Standalone example
 # ---------------------------------------------------------
-if(PICO_LORA_STANDALONE)
-    set(FREERTOS_KERNEL_PATH
-        ${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel
-    )
-
-    include(
-        ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake
-    )
-
+if(PICO_BME280_STANDALONE)
     add_executable(${PROJECT}
         examples/main.cpp
     )
@@ -78,7 +89,11 @@ if(PICO_LORA_STANDALONE)
     # PRIVATE = only needed to build this executable
     # it isn’t part of the public interface of the library
     target_include_directories(${PROJECT} PRIVATE
-        include/
+        ${CMAKE_CURRENT_LIST_DIR}/examples/include
+    )
+
+    target_compile_definitions(${PROJECT} PRIVATE
+        DEVICE_${DEVICE}
     )
 
     target_link_libraries(${PROJECT}
